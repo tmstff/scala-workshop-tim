@@ -1,0 +1,335 @@
+| \b\*English or German?
+
+---
+
+| \b\*Scala Workshop
+
+Proposal for workshop structure:
+
+Each session could be divided into 4 parts:
+
+1) discuss "homework" solutions - not one the first session :smirk:
+2) presentation of features
+3) tryout of new features
+4) feedback (just 5 minutes)
+
+Maybe 2) and 3) will "melt together" :smiley:
+
+--
+/
+
+Goal: instantly dive into code, no long introduction. (Is that Ok with everyone?)
+
+--
+/
+
+This presentation is made with https://github.com/marconilanna/REPLesent
+Content based on https://github.com/DarkToast/scala-workshop by Christian Iwanzik
+
+---
+| \b\*The Scala Interpreter
+
+Installation:
+
+brew install scala
+apt-get install scala
+
+/
+
+To start simply type 'scala' in terminal.
+
+/
+
+After you type an expression like
+
+```
+1 + 2
+```
+
+and hit enter, the interpreter will print
+
+res0: Int = 3
+
+which is to be interpreted as
+
+<name>: <type> = <value>
+
+---
+| \b\*The Scala Interpreter: some tryouts
+
+```
+res0 * 3
+
+println("Hello, world!")
+
+"Hello, world!"
+
+val msg = "Hello, world!"
+
+def max(x: Int, y:Int) = if (x > y) x else y
+
+max(3,5)
+
+def greet(greeting: String) = println(greeting)
+
+greet("Hey, bro!")
+```
+
+---
+| \b\* Objekte und Referenzen 1
+
+Zunächst einmal sind alle Werte in Scala Objekte. Auch Integers, Booleans etc.
+welche in anderen Sprachen lediglich als Primitive definiert sind.
+
+```
+2.toString
+true.hashCode()
+```
+
+--
+/
+
+Standardtypen:
+
+```
+val int: Int = 900000000
+val long: Long = 9000000000000000000l
+val double: Double = 2.2
+val float: Float = 3.4F
+val bool: Boolean = true
+val char: Char = 'c'
+val byte: Byte = 0xf
+val string: String = "Hallo Welt"
+```
+
+---
+| \b\* Objekte und Referenzen 2
+
+Scala kennt nur sehr wenig native Operatoren. Stattdessen sind 'normale' Additionsoperatoren
+wie '+' bei Integers lediglich Methoden eben dieser Klasse.
+
+```
+2.+(2)
+```
+
+Scala erlaubt Punkte und Klammern bei Funktionsaufrufen mit einem Argument weg zu lassen,
+damit's was schöner aussieht.
+
+```
+2 + 2
+2 equals 5
+```
+
+---
+| \b\* Objekte und Referenzen 3
+
+Wenn Objekte verglichen werden, so bietet '==' einen Wertevergleich an und
+die Methode 'eq' einen Referenzvergleich. Kommt man von Java, so kennt man diese Operatoren
+genau entgegengesetzt.
+
+```
+var l = List(1, 2, 3)
+var ll = List(1, 2, 3)
+
+l == ll   // Macht einen Wertevergleich (hier true)
+l eq ll   // Macht einen Referenzvergleich (hier false)
+```
+
+
+
+---
+| \b\* VALs und VARs
+
+Eine benannte Variable lässt sich mit 'var', dem Namen der Variable plus dem Typ
+nach einem Doppelpunkt definieren. Eine Wertinitialisierung ist immer erforderlich.
+Variablen sind, wie der Name bereits sagt, veränderbar (mutable) und können über die Zeit andere Werte annehmen.
+
+```
+var y: String = "This is a var"
+y = "Another value"
+```
+
+--
+/
+
+Im Gegensatz zu Variablen, definieren values eine immutable reference, äquivalent zu final
+Variablen in Java.
+Best practise: So viel vals wie möglich, so viel vars wie nötig - besonders bei Nebenläufigkeit!
+
+```
+val x: String = "hello world"
+// klappt nicht:
+// x = "Another value" <-- Das geht nicht! x ist immutable.
+```
+
+--
+/
+
+Der Scala Compiler manche Ausdrücke zu verkürzen. Bei vals und vars können wir den Typ weg lassen.
+Trotzdem haben die Bezeichner einen Typ. Der Compiler ermittelt den Typ implizit über den Initialisierungswert.
+
+```
+var xx = "hello other world"
+// xx = 12 <-- Das geht nicht! xx ist vom Typ String.
+```
+
+---
+| \b\* Methods - Grundsätzlicher Aufbau 1
+
+Methoden funktionieren in Scala genauso wie in Java. Sie besitzen einen Namen,
+haben keinen bis mehrere Eingabeparameter und immer einen Rückgabewert.
+
+                               method block
+                               |
+                             Gleichheitszeichen(vergisst man leicht)
+                             | |
+                          return type
+                          |  | |
+                second parameter
+                |         |  | |
+        first parameter   |  | |
+   Name |       |         |  | |
+     |  |       |         |  | |
+```
+def sum(x: Int, y: Int): Int = {
+  val z = x + y
+  z // Der letzte Ausdruck eines Methodenblocks ist immer auch der Rückgabewert.
+}
+```
+
+---
+| \b\* Methods - Grundsätzlicher Aufbau 2
+
+Auch bei Methoden können wir die Schreibweise ein wenig verkürzen.
+Haben wir nur eine sehr kurze Methode, können die Klammern weg gelassen werden.
+Auch der Returntype kann vom Compiler implizit ermittelt werden.
+Achtung: Natürlich kann man manche Sachen weg lassen, allerdings macht es das für einen
+Nutzer der Methode nicht unbedingt einfacher sie zu verstehen. Als best practise kann man nehmen:
+Öffentliche Methoden so explizit wie möglich halten.
+
+```
+def sum2(x: Int, y: Int) = x + y
+```
+
+--
+/
+
+Auch wenn Methoden möglichst seiteneffektlos sein und einen Returntype haben sollten,
+so ist natürlich auch der leere Returntype möglich. Was in Java und C das void, ist in Scala
+die Klasse Unit. 'Unit' hat nur einen Wert und beeinhaltet daher keine Information.
+
+```
+def print(x: String): Unit = {
+  println(x)
+}
+```
+
+---
+| \b\* Methods - Repeated Parameter
+
+Methoden können einen repeated parameter beinhalten, wodurch beliebig lange
+Parameterlisten möglich sind. Dieser Parameter muss immer am Ende der Parameterliste
+stehen und bildet innerhalb des Codeblocks eine Sequence
+(Die Oberklasse von List, ArrayBuffer, etc.)
+
+```
+def repeatedParameters(values: String*): String = values.mkString(" ")
+repeatedParameters("Hallo", "Welt", "!!!")
+```
+
+---
+| \b\* Methods - Named Parameter
+
+Beim Aufruf einer Methode kann man die Parameternamen mit angeben
+und somit zum Beispiel längere Parameterlisten übersichtlicher gestalten,
+oder auch die Parameter in anderer Reihenfolge angeben.
+
+```
+def namedArguments(value: String, splitAt: Char): Array[String] = value.split(splitAt)
+namedArguments(splitAt = '.', value = "Hallo.Welt.!!!")
+```
+---
+| \b\* Methods - Default Value for Parameters
+
+
+Für jeden Parameter kann ein Deaultwert definiert werden. Dieser wird immer dann
+gesetzt, wenn beim Aufruf dieser Parameter leer bleibt.
+
+```
+def split(value: String, splitAt: Char = '.'): Array[String] = value.split(splitAt)
+split("Hallo-Welt-!!!", '-')
+split("Hallo.Welt.!!!")
+```
+
+---
+| \b\* Methods - Lazy Evaluation for Parameters
+
+Normalerweise werden die Werte der Parameter vor einem Methodenaufruf bestimmt.
+Scala erlaubt es Ausdrücke für Parameter erst beim Parameterzugriff auszuwerten:
+
+
+```
+def answer = {println("answer"); 40}
+
+def eagerEval(x: Int) = {println("eager"); x}
+def lazyEval(x: => Int) = {println("lazy"); x}
+
+eagerEval(answer)
+lazyEval(answer)
+
+```
+
+Besonders praktisch für Szenarien, in denen zunächst Resource belegt und
+dann wieder freigegeben werden sollen, z.B. Input/OutputStreams, DB-Verbindungen etc.
+
+---
+| \b\* Methods - Parameterlisten
+
+Methoden können nicht nur eine Parameterliste besitzen, sondern mehrere abgetrennte.
+
+```
+def surrounded(before: String, after: String)(function: => Unit) = {
+  println(before)
+  function
+  println(after)
+}
+```
+
+Dies ermöglicht z.B. currying
+
+```
+val inBraces = surrounded("{", "}") _
+
+
+inBraces {
+  println( "in Klammern :-)" )
+  println( "     ****      " )
+}
+```
+
+---
+| \b\* Methods - Methoden in Methoden
+
+Methode müssen nicht zwangsläufig an Klassen gebunden sein. Methoden können auch innerhalb
+eines anderen Methodenblocks definiert werden.
+Als komplexeres Beispiel hier eine Methode zum Summieren von Zahlen, welche innerhalb
+eine weitere rekursive Methode benutzt.
+
+```
+def recursiveListSum(list: List[Int]) = {
+  @tailrec
+  def step(sum: Int, elements: List[Int]): Int = {
+    if(elements.isEmpty) {
+      sum
+    } else {
+      step(sum + elements.head, elements.tail)
+    }
+  }
+
+  step(0, list)
+}
+recursiveListSum(List(1, 2, 3, 4, 5))
+```
+
+Zur Info: Durch die '@tailrec' Annotation kann der Compiler die rekursive Funktion
+in einen Loop Umwandeln - das ist flotter und vermeidet einen Überlauf des Stacks.
