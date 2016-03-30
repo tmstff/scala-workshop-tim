@@ -411,3 +411,10 @@ recursiveListSum(List(1, 2, 3, 4, 5))
 
 Zur Info: Durch die '@tailrec' Annotation kann der Compiler die rekursive Funktion
 in einen Loop Umwandeln - das ist flotter und vermeidet einen Überlauf des Stacks.
+
+---
+| \b\* Übungen (für's nächste mal?)
+
+https://github.com/tmstff/scala-workshop-yann
+
+=> section 1
