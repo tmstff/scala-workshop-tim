@@ -8,7 +8,7 @@ Proposal for workshop structure:
 
 Each session could be divided into 4 parts:
 
-1) discuss "homework" solutions - not one the first session :smirk:
+1) discuss "homework" solutions - not on the first session :smirk:
 2) presentation of features
 3) tryout of new features
 4) feedback (just 5 minutes)
@@ -174,6 +174,21 @@ var xx = "hello other world"
 ```
 
 ---
+| \b\* lazy vals
+
+Scala bietet die Möglichkeit vals zu definieren, deren Wert nicht zum Zeitpunkt der Deklaration,
+sondern erst zum Zeitpunkt des ersten Zugriffs berechnet werden:
+
+```
+def computeA(): String = {println("computing a ..."); "a"}
+
+lazy val a: String = computeA()
+```
+
+Bei weiteren Zugriffen wird der Wert nicht erneut berechnet. Stattdessen wird der beim
+ersten Zugriff berechnete Wert verwendet.
+
+---
 | \b\* Methods - Grundsätzlicher Aufbau 1
 
 Methoden funktionieren in Scala genauso wie in Java. Sie besitzen einen Namen,
@@ -279,9 +294,6 @@ lazyEval(answer)
 
 ```
 
-Besonders praktisch für Szenarien, in denen zunächst Resource belegt und
-dann wieder freigegeben werden sollen, z.B. Input/OutputStreams, DB-Verbindungen etc.
-
 ---
 | \b\* Methods - Parameterlisten
 
@@ -304,6 +316,72 @@ val inBraces = surrounded("{", "}") _
 inBraces {
   println( "in Klammern :-)" )
   println( "     ****      " )
+}
+```
+
+Besonders praktisch für Szenarien, in denen zunächst Resource belegt und
+dann wieder freigegeben werden sollen, z.B. Input/OutputStreams, DB-Verbindungen etc.
+
+---
+| \b\* Methods - Übung
+
+Schreibe eine Methode, die für mehrere Dateinamen jeweils einen InputStream öfffnet, erlaubt Aktionen
+auf dem InputStream auszuführen, ihn im Anschluss schließt und folgende
+Schreibweise erlaubt:
+
+withFiles("/tmp/test1", "/tmp/test2") {
+  stream => println(stringOf(stream))
+}
+
+dazu wird benötigt:
+
+```
+import java.io.{FileInputStream, InputStream}
+
+def stringOf(is: InputStream) = scala.io.Source.fromInputStream(is).mkString
+```
+
+Hint: You will need to use a Function as parameter for withFile. The syntax is
+
+```
+def example(useInputStream: InputStream => Unit) {
+  useInputStream(new FileInputStream("/tmp/test1"))
+}
+
+example(is => { /* do something */ })
+```
+
+--
+/
+
+```
+withFiles("/tmp/test1", "/tmp/test2") {
+  stream => println(stringOf(stream))
+}
+```
+
+---
+| \b\* Methods - Mögliche Lösung für Übung
+
+```
+
+def withStream(is: InputStream)(useInputStream: InputStream => Unit): Unit =
+  try {
+    useInputStream(is)
+  } finally {
+    is.close()
+  }
+
+def withFiles(fileNames: String*)(useInputStream: InputStream => Unit) : Unit =
+  fileNames.foreach(
+    fileName => {
+      val is = new FileInputStream(fileName)
+      withStream(is)(useInputStream)
+    }
+  )
+
+withFiles("/tmp/test1", "/tmp/test2") {
+  stream => println(stringOf(stream))
 }
 ```
 
