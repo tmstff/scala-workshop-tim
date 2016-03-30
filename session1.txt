@@ -415,6 +415,7 @@ in einen Loop Umwandeln - das ist flotter und vermeidet einen Überlauf des Stac
 ---
 | \b\* Übungen (für's nächste mal?)
 
-https://github.com/tmstff/scala-workshop-yann
+https://github.com/tmstff/scala-dojo-yann
 
 => section 1
+https://github.com/tmstff/scala-dojo-yann/blob/master/src/test/scala/section1/Section1Test.scala
