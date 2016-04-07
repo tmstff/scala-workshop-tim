@@ -1,0 +1,287 @@
+| \b\*Scala Workshop - session 2
+
+1) discuss "homework" (section1)
+2) Fragen vom letzten mal
+3) sbt & idea
+4) Functions
+5) Homework
+6) Feedback
+
+---
+| \b\* Fragen vom letzten mal
+
+Farben: besser?
+```
+val g: =  (x: Int, y: Int) => { x+y  + 4 + 5 + 6}
+```
+--
+
+\b SDKman
+http://sdkman.io/
+➜  ~ sdk list | grep sbt
+sbt (0.13.11)                                          http://www.scala-sbt.org/
+                                                             $ sdk install sbt
+--
+
+\b autocloseable
+Wird nicht direkt unterstützt, ist aber leicht umsetzbar:
+http://illegalexception.schlichtherle.de/2012/07/19/try-with-resources-for-scala/
+--
+
+@tailrec: wird automatisch optimiert?
+
+In Scala 2.8, you will also be able to use the new @tailrec annotation to get information
+about which methods are optimised. This annotation lets you mark specific methods that you
+hope the compiler will optimise. You will then get a warning if they are not optimised by
+the compiler. In Scala 2.7 or earlier, you will need to rely on manual testing, or inspection
+of the bytecode, to work out whether a method has been optimised.
+
+http://blog.richdougherty.com/2009/04/tail-calls-tailrec-and-trampolines.html
+
+---
+| \b\* sbt & idea
+
+* scala plugin
+* build.sbt
+* scala console
+* interactive mode for scripts
+
+---
+| \b\* Funktionen
+
+Funktionen verhalten sich in ihrer Grundform genauso wie Methoden. Sie haben Eingabeparameter und einen
+Rückgabewert.
+Zusätzlich sind Funktionen aber auch so genannte first class citizens. Also Objekte, die genauso
+wie ein String, ein Array oder ein komplexes Objekt referenziert und z.B. als Parameter übergeben
+werden können.
+
+http://jim-mcbeath.blogspot.de/2009/05/scala-functions-vs-methods.html
+
+
+Grundsätzlicher Aufbau einer function:
+```
+(x: Int, y: Int) => { x+y }
+```
+ |       |         |       |
+ |       |         +-------+
+ |       |             |
+ |       |         function body
+ |       |
+ |       second parameter
+ |
+ first parameter
+
+---
+| \b\* Funktionsreferenzen
+
+Wollen wir nun eine Funktion referenzieren, so können wir dies wie jede andere Variablendefinition machen.
+Der Typ einer Funktion sieht dabei so ähnlich aus, wie ihre Definition und mag am Anfang ein wenig verwirren.
+
+```
+val g: (Int, Int) => Int   =   (x: Int, y: Int) => { x+y }
+```
+       |                |      |                         |
+       +----------------+      +-------------------------+
+         |                       |
+         The function type       |
+                                 |
+                                 function definition
+
+In diesem Beispiel ist der Name des Value 'g'.
+Der Typ des Value ist '(Int, Int) => Int' - Sprich: Int und Int auf Int.
+Dieser Typ beschreibt alle Funktionen, welche zwei Int Parameter und als Rückgabetyp wiederum ein Int besitzen.
+Der Wert ist nun die eigentliche Funktion mit zwei benannten Parametern (x und y) und einem Funktionskörper,
+der diese beiden Parameter addiert.
+
+Die Funktion ist nun über den Namen 'g' referenzier- und dadurch auch direkt aufrufbar:
+```
+g(1, 2)
+```
+
+---
+| \b\* Funktionen: verkürzte Schreibweise
+
+Auch bei Funktionen müssen wir nicht jedesmal den Typ angeben oder Klammern setzen.
+Gerade bei Funktionen macht die explizite Angabe des Typs den Code mitunter unübersichtlicher.
+Allerdings können wir nicht alle Typdefinitionen weg lassen. Der Compile muss immer den Typ
+der Funktion ermitteln können.
+
+```
+val h = (x: Int, y: Int) => x+y   Durch die Parameter und die Operation sind alle Typen bekannt
+
+val i: (Int, Int) => Int  =  (x, y) => x+y  Durch den expliziten Typ des Values, brauchen wir die Typen der Parameter
+                                            nicht mehr mit angeben. Diese sind implizit bekannt.
+```
+
+---
+| \b\* Higher Order Functions 1
+
+Eine Higher order function ist eine Funktion, die wiederum eine Funktion als Parameter übergeben bekommt und/oder
+eine Funktion zurück gibt. Nicht nur allein Funktionen können so benutzt werden, sondern auch Methoden. Hier sind
+beide wieder äquivalent.
+
+Diese Methode hat zwei Parameter. Einmal x vom Typ 'Int' und f vom Typ 'Int => Int'.
+Zusätzlich definieren wir eine Funktion, die unserem Parametertyp von f entspricht und benutzen sie
+als zweiten Parameter für 'makeSomethingWithInt'
+
+```
+def makeSomethingWithInt(x: Int, f: (Int) => Int): Int = f(x)
+```
+
+```
+val twoTimes = (value: Int) => value * 2
+makeSomethingWithInt(42, twoTimes)
+```
+
+---
+| \b\* Higher Order Functions 2
+
+Genauso können wir auch eine Methode dazu benutzen uns eine neue Funktion zu erzeugen.
+'createNTimes' bekommt als Parameter ein Int 'times' und erzeugt daraus eine Funktion, deren
+erster Parameter 'x' mit 'times' multipliziert wird. Diese Funktion wird dann zurück gegeben.
+
+```
+def createNTimes(times: Int): (Int) => Int = {
+  (x: Int) => times * x
+}
+
+val threeTimes: (Int) => Int = createNTimes(3)
+makeSomethingWithInt(42, threeTimes)
+```
+
+
+---
+| \b\* Lambdas 1
+In vielen Fällen brauchen wir eine Funktion nur genau einmal. Uns reicht also aus, wenn eine Funktionsdefinition
+anonym direkt als Parameter übergeben wird. Dies ist auch als anonymous function oder lambda expression bekannt.
+
+Vollständiger Lambdaausdruck
+```
+makeSomethingWithInt(8, (x: Int) => {
+  x * 2
+})
+```
+--
+
+Der Codeblock ist ein Einzeiler, daher können wir die {}-Klammern weg lassen.
+```
+makeSomethingWithInt(8, (x: Int) => x * 2)
+```
+--
+
+Der Compiler weiß anhand des Parametertyps von 'makeSomethingWithInt' bereits das x ein Int sein muss.
+Daher können wir auch den Typ im Lambda weglassen.
+```
+makeSomethingWithInt(8, (x) => x * 2)
+```
+--
+
+Die () - Klammern brauchen wir nun auch nicht mehr.
+```
+makeSomethingWithInt(8, x => x * 2)
+```
+
+---
+| \b\* Lambdas 2
+
+Die kürzeste Form eines Lambdas besteht nur noch aus Funktionsblock und den Wildcardzeichen _
+Jedes _ steht dabei für einen Parameter aus der Parameterliste, wobei jedes Wildcard nur genau einmal
+benutzt werden kann. Diese Syntax sollte explizit sehr kurzen Funktionen vorbehalten bleiben. Ansonsten droht
+ein nicht zu vernachlässigender Übersichtsverlust.
+```
+makeSomethingWithInt(8, _ * 2)
+```
+
+Hätten wir eine Funktion mit (Int, Int) => Int sähe ein Codeblock mit Wildcards z.B so aus:
+_ + _ + 2, wobei das erste _ für das erste Int und das zweite _ für das zweite Int steht.
+
+
+---
+| \b\* The map-Funktion
+
+Ein Einsatzgebiet dieser sehr kurzen Notation ist z.B. die map Methode einer Scala Liste.
+In unserem Beispiel haben wir eine Liste von Ints. Die map Methode verlangt nun als Parameter
+eine Funktion vom Typ '(Int) => Int'. Diese Funktion wird daraufhin auf jedes Element der Liste
+angewandt und die Ergebnisse werden in eine neue Liste verpackt. Als Ergebnis erhalten wir
+eine neue List(2, 4, 6)
+
+```
+val list = List(1, 2, 3)
+list.map(_ * 2)
+```
+
+Diese Funktion gibt es übrigens auch für Java8 Streams. Bei Groovy heißt sie collect(...) -
+was es bei Scala auch als Funtkion gibt, aber eine andere Bedeutung hat!
+
+---
+| \b\* Excurs: Partial Funtions
+
+In Scala müssen Funktionen nicht auf dem Gesamten Wertebereich der Eingabeparameter definiert sein
+
+val one: PartialFunction[Int, String] = { case 1 => "one" }
+
+one.isDefinedAt(1)
+one.isDefinedAt(2)
+
+Wir gehen auf die cases nochmal genauer beim Pattern Matching ein.
+
+--
+
+Die Funktion collect(...) nimmt bei Scala eine partielle Funktion an, die sie
+auf jedes Element einer Collection anwendet. Zurückgegeben wird eine neue
+Collection. Ist die partielle Funktion für das jeweilige Element definiert
+
+
+---
+| \b\* If
+
+Eine If Verzweigung funktioniert in Scala ein bisschen anders, als in
+klassischen imperativen Sprachen. Während ein If z.B. in Java lediglich
+die aktiven Verzweigungsblöcke ausführt, ist ein Scala-If ein vollständiger
+Ausdruck, der, wie fast alle Ausdrücke in Scala, den Rückgabewert seiner aktiven Blöcke hat.
+
+```
+val x = 12
+val value = if (x == 42) {
+    "Die Antwort"
+  } else {
+    "Irgendwas anderes"
+  }
+```
+
+In diesem Beispiel wird den Wert x mit 42 verglichen. Je nachdem was gilt, wird der entsprechende
+Block ausgeführt und zum darin enthaltenen String ausgewertet. Das If wiederum wertet sich daraufhin
+zu genau diesem Wert aus, woraufhin dieser dem Wert 'value' zugewiesen wird.
+
+---
+| \b\* WHILE LOOP
+
+Die While Schleife ist einer der wenigen Ausdrücke die immer Unit zurück geben. Also im Kern
+seiteneffektbehaftet ist. Ansonsten funktioniert sie wie in Java.
+
+```
+var y = 1
+while(y != 4) {
+  println(y)
+  y += 1
+}
+```
+
+Äquivalent zur while Schleife, existiert auch die do while:
+
+```
+var z = 1
+do {
+  println(z)
+  z += 1
+} while(z != 4)
+```
+
+
+---
+| \b\* Übungen (für's nächste mal)
+
+https://github.com/tmstff/scala-dojo-yann
+
+=> section 2
+https://github.com/tmstff/scala-dojo-yann/blob/master/src/test/scala/section2/Section2Spec.scala
