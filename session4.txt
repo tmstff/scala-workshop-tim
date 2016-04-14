@@ -1,0 +1,315 @@
+| \b\*Scala Workshop - session 4
+
+1) Organisatorisches
+2) Fragen vom letzten mal
+3) discuss "homework" (section3)
+4) Case Classes & Pattern Matching
+5) Homework for next time
+6) Feedback
+
+---
+| \b\* Organisatorisches
+
+Wer will mal?
+
+
+---
+| \b\* Fragen vom letzten mal
+
+
+---
+| \b\* CASE CLASSES
+
+Scala bietet für Valueobjekte eine spezielle Art der Klasse, genannt `case class`
+Definiert wird sie wie jede andere Klasse, aber mit einem `case` Schlüsselwort.
+
+Case classes bieten ein paar vordefinierte Methoden, die viel Boilerplatecode einsparen.
+So sind in diesem Beispiel die Konstruktorargumente automatisch public und immutable.
+Die Klasse bietet direkt eine `equals` und `hashCode` Methode, die alle Werte der Klasse
+mit einbeziehen. Auch existiert für das value object pattern eine `copy` Methode,
+welche über named parameters nur spezielle Werte in der Kopie ändern lassen.
+```
+case class User(name: String, surname: String, age: Int) {
+  Ein Beispiel für die `copy` Methode. Wir erzeugen eine Kopie der aktuellen Instanz
+  aber mit einem neuen Alter.
+  def birthday = this.copy(age = age + 1)
+}
+```
+
+Case classes besitzen auch direkt ein companion object mit einer apply Methode:
+```
+val user_one = User("Max", "Mustermann", 23)
+val user_two = User("Max", "Mustermann", 23)
+```
+
+--
+
+Beispiel für `equals` und `hashCode`.
+```
+user_one == user_two
+user_one.hashCode
+```
+
+Auch haben case classes eine automatische toString Implementierung, die alle
+Werte ausdruckt.
+```
+'User(Max,Mustermann,23)'
+println(user_one)
+```
+
+---
+| \b\* PATTERN MATCHING
+
+Das pattern matching ist eines der mächtigsten Werkzeuge für Verzweigungslogik in Scala
+und stammt aus der Werzeugkiste der funktionalen Programmierung.
+Was man aus Java oder C als simples switch/case kennt, ist in Scala weit umfangreicher.
+
+| Simple match
+Diese Methode erhält als ersten Parameter einen `String` x.
+Mit dem Operator `match` hinter einer Variable erzeugen wir nun einen neuen Matchingblock.
+Im folgenden Ausdruck werden dann die einzelnen Matchingausdrücke startend mit einem `case`
+erzeugt.
+Trifft ein Ausdruck auf den zu überprüfenden Wert zu, so wird der gesamte Matchingausdruck
+zu dem Wert hinter dem `=>` ausgewertet.
+Ein Fall Through findet hierbei nicht statt. Es gewinnt immer nur ein Match. Geprüft wird
+von oben nach unten.
+
+```
+def describe(x: String) = x match {
+//.     Matchingausdruck
+//.     |
+//.     |         Ergebnis, wenn der Match zutrifft
+//.     |         |
+  case "Hallo" => "some hello"
+  case "Hallo Welt" => "some hello world"
+}
+```
+
+describe("Hallo Welt")    Gibt "some hello world" zurück
+describe("Hallo")         Gibt "some hello" zurück
+describe("Foo")           Wirft eine `MatchError` Exception.
+
+---
+| \*\b Constant pattern und default value mit dem wildcard pattern
+
+Diese Methode bekommt einen Wert vom Typ `Any`. Das ist die Oberklasse aller Werte in Scala.
+Wie im oberen Beispiel matchen wir auch hier auf konstante Werte. Scala erlaubt uns
+jeden beliebigen Wert als Kriterium zu nehmen.
+Sollte kein Kriterium auf den übergebenen Wert passen, so bedienen wir uns hier dem
+Wildcardzeichen `_` was auf alle Werte passt und uns so einen Defaultwert ermöglicht.
+
+```
+def describe2(x: Any) = x match {
+  case 10 => "ten"
+  case true | false => "boolean"
+  case "hello" => "hi!"
+  case Nil => "empty List"
+  case _   => "something else"  //<--- Wildcard pattern mit einem default value
+}
+
+describe2(10)     //ten
+describe2(true)   //boolean
+describe2(Unit)   //Something else
+```
+
+---
+| \*\b Variable pattern
+
+Statt des `_` Zeichens können wir auch einen beliebigen Variablennamen nehmen.
+Dadurch wird der uns unbekannte Wert in diese Variable geschrieben und kann
+im folgenden Ausdruck verwendet werden.
+
+```
+42 match {
+  case 0 => println("zero")
+  case someVar => println(someVar)
+}
+```
+
+---
+| Constructor pattern mit case classes
+
+Case classes haben neben ihren vordefinierten Methoden noch einen sehr praktischen Vorteil.
+Sie können direkt in einem Machtingausdruck als Pattern benutzt werden.
+Zunächst definieren wir uns eine `User` Klasse und eine kleine Hierachie für das Geschlecht.
+
+```
+abstract class Gender
+object Male extends Gender
+object Female extends Gender
+
+case class User(name: String, surname: String, age: Int, gender: Gender)
+```
+
+Max und Martina stehen uns für ein Beispiel zur Verfügung.
+```
+val max = User("Max", "Mustermann", 34, Male)
+val martina = User("Martina", "Musterfrau", 16, Female)
+```
+
+Mittels des Constructor Patterns können wir Instanzen von case classes direkt auf den
+Ausdruck ihrer Erzeugung matchen. Dadurch lassen sich vielfältige Möglichkeiten für
+Fallunterscheidungen bewerkstelligen. Der Nachteil des Constructor Patterns ist, wenn sich der Konstruktor ändert,
+zum Beispiel ein neuer Parameter dazu kommt, müssen auch sämtliche Pattern matchings angepasst werden.
+Hier ein paar Beispiele:
+
+```
+def users(user: User) = user match {
+  case User(name, "Mustermann", _, Male) => println(s"some male with surname Mustermann named: $name")
+  case User(name, _, _, Female) => println(s"some female named: "+ $name)
+  case User(name, _, 34, Male) => println(s"some male that is 34 named: $name")
+}
+
+users(max)
+users(martina)
+```
+
+---
+| \b\* Variable binding
+
+Nutzt man ein constructor pattern und will nicht nur auf die einzelnen
+Elemente zugreifen, sondern mit dem gesamten Objekt arbeiten, so
+bietet sich das variable binding an.
+
+Zunächst eine Beispielklasse:
+
+```
+case class Car(colour: String, brand: String, km: Double) {
+  def startEngine() = println("WROOOMM")
+}
+```
+
+Möchten wir nun auf einen BMW matchen und zusätzlich im Nachhinein
+diesen Wagen auch mit `startEngine` starten, so können wir das ganze
+Objekt mit einer Variable belegen: `varName @ [Pattern]`:
+
+```
+Car("blue", "BMW", 30000) match {
+  case c @ Car(_, "BMW", _) => println(c.startEngine())
+```
+
+---
+| \b\* Pattern guards & Tuple Patterns
+
+Möchte man ein pattern noch etwas verfeinern, so kann man, kombiniert
+mit dem variable binding, diesem ein pattern guard beigeben.
+Dabei habdelt es sich einfach um ein if, welches direkt nach dem Pattern,
+also noch vor dem `=>` geschrieben wird:
+
+```
+Car("blue", "BMW", 30000) match {
+  case Car(_, "Audi", km) if km < 20000 => println("Adult male")
+  case Car(_, "BMW", _) => println("childish male")
+}
+```
+--
+
+Tuples können ähnlich wie case classes über ein Konstruktor pattern gematched werden:
+
+```
+(1, 2, 3) match {
+  case (_, _, 2) => println("_, _, 2")
+  case (_, 2, 4) => println("_, 2, 4")
+  case (1, _, _) => println("1, _, _")
+}
+```
+---
+| \b\* Typed patterns
+
+Typed patterns ermöglichen es, anhand des Datentyps zu filtern.
+`typeMatcher` arbeitet mit einem Value vom Typ `Any`. Im Matchingblock überprüfen wir nun den
+eigentlichen Typ des Values. Die Syntax ist hier wie bei einer Variablendeklaration. Also
+`name`: `type`. Alternativ kann als `name` auch das Wildcardzeichen benutzt werden, wenn uns nur der
+Typ interessiert:
+
+```
+def typeMatcher(x: Any) = x match {
+  case theString: String => println("A String with value: " + theString)
+  case theInt: Int => println("An Integer with value: " + theInt)
+  case _: Boolean => println("A Boolean value")
+  case _ => println("Something other")
+}
+typeMatcher("Hallo")
+typeMatcher(43)
+typeMatcher(true)
+typeMatcher(34.5)
+```
+
+
+---
+| \b\* Typed patterns & Type erasures
+
+WARNUNG: Type erasures!!! Oder: Ein kleiner Exkurs in die tiefen Tiefen der JVM.
+Auf der JVM sind Generic Informationen lediglich zur Compilezeit bekannt.
+Zur Laufzeit sind diese Informationen nicht mehr vorhanden. Eine List[Int]
+ist dort äquivalent zu List[String].
+Beim Pattern Matching ist man schnell versucht ein Typpattern mit Generics
+zu versuchen. Wie im folgenden Beispiel eine Map, deren Values Integers sind,
+deren Keytyp uns aber egal ist:
+
+```
+def isIntCollection(x: Any) = x match {
+  case m: Map[_, Int] => true
+  case a: Array[Int] => true
+  case _ => false
+}
+```
+
+Durch das type erasure wird nun folgender Ausdruck zu true ausgewertet,
+obwohl wir definitiv eine Map[String, String] als Parameter geben.
+Das Problem des type erasures tritt auch in Java auf. Siehe:
+   http://docs.oracle.com/javase/tutorial/java/generics/bridgeMethods.html
+
+```
+isIntCollection(Map("x" -> "y"))
+```
+
+--
+
+Aaaaaaber. Was passiert, wenn wir ein `Array("hallo")`, also ein Array[String]
+übergeben? Seltsamerweise erhalten wir hier ein `false` von der Methode.
+
+Arrays stammen noch aus einer Zeit der JVM als es noch keine Generics gab. Sie sind
+daher ein Spezielfall, da sie die einzige Collectionstruktur sind, die direkt von der JVM
+unterstützt werden und nicht erst programmatisch erzeugt werden müssen.
+Arrays sind auch die einzige Collection, die zur Laufzeit ihren Typ
+behält. Ein Java `int[]` ist eben ein eigener Typ und äquivalent zu dem Scala Array[Int].
+s. auch: http://code.stephenmorley.org/articles/java-generics-type-erasure/
+
+```
+isIntCollection(Array("hallo"))
+```
+
+
+---
+| \b\* Patterns everywhere
+
+Das Konstruktorpattern kann auch direkt bei einer Variablendekleration benutzt werden.
+Hier extrahieren wir die Farbe des Autos mit einem Konstruktorpattern
+und speichern den Wert in der Variable `color`, welche wir im Anschluss direkt
+benutzen können.
+```
+val car = Car("red", "Jaguar", 20000)
+val Car(colour, _, _) = car
+println(colour)
+```
+
+Das Autobeispiel wäre vermutlich mit einem `car.colour` schneller und nachhaltiger
+gewesen. Tatsächlich ist diese Variablendeklaration auch eher für ein einfach und
+übersicherlicheres extrahieren von Tupledaten geeignet:
+Das geht meist einfacher von der Hand als ein
+  val t = getTuple()
+  println(t._1)
+
+```
+def getTuple(): (String, Int) = ("hallo", 123)
+val (string, number) = getTuple()
+
+println(string)
+println(number)
+```
+
+---
+| \b\* Übungen (für's nächste mal)
+
+https://github.com/tmstff/scala-dojo-yann
