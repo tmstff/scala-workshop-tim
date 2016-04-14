@@ -1,0 +1,455 @@
+| \b\*Scala Workshop - session 3
+
+1) Organisatorisches
+2) Fragen vom letzten mal
+3) discuss "homework" (section2)
+4) Lists & Maps
+5) Classes
+6) Homework for next time
+7) Feedback
+
+---
+| \b\* Organisatorisches
+
+Wer will mal?
+
+Zeitplanung: Öfter? Seltener? Kürzer? Länger?
+
+
+---
+| \b\* Fragen vom letzten mal 1
+
+Wie bekommt man es hin, dass bei a :: b die :: Methode auf b aufgerufen wird?
+
+Sie muss dabei auf der Klasse von b definiert sein und auf : enden!
+
+Beispiel:
+
+```
+class A { def >>:(b: String) = println(s"geht auch: $b") }
+
+val a = new A()
+"so rum" >>: a
+//a >>: "so rum nicht" //Fehler!
+```
+
+--
+/
+
+hier noch die Unterlagen von Christians Scala Workshop: https://github.com/DarkToast/scala-workshop
+
+--
+/
+
+Zu welchem Objekt gehören Methoden, die "Top Level" in einem Script deklariert werden?
+
+Keine Ahnung :-D Wenn ihr es herausfindet: lasst es mich wissen!!
+
+---
+| \b\* Fragen vom letzten mal 2
+
+Streams Äquivalent in Scala
+
+```
+def fib(a:Int = 0, b: Int =1): Stream[Int] = a #:: fib(b, a + b)
+fib().take(10).foreach(println _)
+```
+
+--
+/
+
+Parallelisierung:
+
+```
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
+def asyncComp(x: Int) = Future { x * x }
+(1 to 5) map (asyncComp _)
+
+fib() map (asyncComp _) take(10) foreach(_.onComplete(println _))
+```
+
+--
+
+collect und join:
+
+https://twitter.github.io/scala_school/finagle.html (nocht nicht ausprobiert ...)
+
+---
+| \b\* Homework (Section2)
+
+---
+| \b\*  Listen
+
+Listen sind der dynamischer Nachbar des Arrays und können beliebig wachsen und auch schrumpfen. Anders
+als in vielen anderen Sprachen ist die Standardliste in Scala immutable. Das heißt, jede Operation, die
+ich auf einer Liste vorneme, erzeugt wiederum eine neue Liste
+
+Listen können auch hier mit der apply methode des List companion objects erzeugt werden.
+```
+val list: List[Int] = List(1, 2, 3, 4, 5, 6)
+```
+
+Zugriff erlangen wir wieder mit der gekürzt geschriebenen `apply` Methode (der Klasse List!)
+```
+list(4)
+```
+
+---
+| \b\*  Listen: neue Elemente und Konkatenation
+
+Die Methoden der Liste heißen ein wenig seltsam, sollen aber eher einen Operatorcharakter haben.
+Daher schreibt man sie auch eher ohne Punkt und Klammern.
+
+```
+val addList_1 = 0 :: list     //Legt die 0 an den Anfang der neuen Liste
+val addList_2 = list :+ 7     //Legt die 7 an das Ende der neuen Liste
+```
+
+Mit der ::: Methode lassen sich zwei Listen konkatenieren.
+```
+val concatList = List(-2, -1, 0) ::: list
+```
+
+---
+| \b\* Listen: nützliche Methoden
+
+Ein paar nützliche Methoden sind `head` und `tail`.
+`head` liefert das erste Element einer Liste. `tail` die Liste ohne das erste Element.
+```
+val head = list.head  //1
+val headOption = list.headOption //Some(1)
+val tail = list.tail  //(2, 3, 4, 5, 6)
+val last = list.last
+```
+
+--
+
+Man kann Listen in eine Liste von Pairs zusammenfügen:
+
+```
+val pairList = list zip List("a", "b", "c", "d")
+val pairOfLists = pairList.unzip
+```
+
+---
+| \b\* Transformationen
+
+Darüber hinaus verfügt List über diverse Transformationsmethoden, die
+über Lambdaausdrücke gesteuert werden.
+
+```
+list.filter(_ > 3)       //Filtert alle Elemente raus, die nicht auf den Filter passen
+list.map(_ + 2)          //Transformiert jedes Element der Liste
+list.takeWhile(_ > 4)    //Liefert so lange Elemente von links nach rechts, bis der Lambdaausdruck true ergibt.
+```
+
+--
+
+Auch interessant:
+
+```
+list splitAt 3
+list partition {_ < 3}
+list groupBy (_ % 3)
+list.sum
+list.product
+```
+
+---
+| \b\* Folds
+
+foldLeft "klappt" die Liste von links nach rechts zusammen. Der erste Parameter bildet den Startwert des Akkumulators.
+Der zweite Parameter nimmt eine Funktion mit zwei Parametern entgegen. Der erste ist der Akkumulator, der zweite
+der aktuelle Wert der Liste
+Die Aufrufe des Lambdas sähen dann so aus:
+  0 + 1 = 1
+  1 + 2 = 3
+  3 + 3 = 6
+  ...
+
+```
+list.foldLeft(0)( (accumulator, element) => accumulator + element)
+```
+
+Oder, wenn man etwas fancy unterwegs ist, nimmt man den foldLeft 'Operator' `/:`  ;-)
+```
+(0 /: list)(_ + _)
+```
+
+geht auch andersrum:
+```
+(list :\ 0)(_ + _)
+list.foldRight(0)( _ + _)
+```
+
+--
+
+Man kann auch den Startwert weglassen, in diesem Fall wird der erste Schritt von foldLeft ausgelassen.
+
+```
+list reduceLeft (_ + _)
+list reduceRight (_ + _)
+```
+
+---
+| \b\* map, flatten und flatMap
+Im Fall einer verschachtelten Liste bietet List die Methode `flatten`, welches
+die inneren Elemente in die obere Liste verschiebt. Das Ergebnis vom Beispiel
+ist: List(Hallo, Welt, ., Hello, world, .)
+```
+val nestedList = List(List("Hallo", "Welt", "."), List("Hello", "world", "."))
+nestedList.flatten
+```
+
+Oft kommt die Kombination aus map und flatten vor. In diesem Beispiel transformieren
+wir jeden inneren Wert zu seiner Länge. Danach wird die Liste geflattet.
+Beide Methoden werden in `flatMap` vereint.
+Hat man sich irgendwann mal mit dem Konzept der Monaden beschäftigt, wird man merken
+das `flatMap` den bind-Operator abbildet.
+
+```
+val mappedList = nestedList.map(l => l.map(s => s.length))
+mappedList.flatten    //--> List(5, 4, 1, 5, 5, 1)
+
+nestedList.flatMap(l => l.map(s => s.length))   //--> List(5, 4, 1, 5, 5, 1)
+```
+
+---
+| \b\* Mutable List
+
+Die Scala Collections bieten neben den normalen immutable Klassen auch mutable
+Alternativen. Für die Liste gibt es daher das ListBuffer Pendant.
+
+```
+val listBuffer  = scala.collection.mutable.ListBuffer[String]()
+listBuffer += "hallo"
+listBuffer += "welt"
+```
+
+---
+| \b\* Maps
+
+Die standard Map ist wie die List eine immutable Datenstruktur. Auch die Map besitzt ein companion
+object, mit dem eine neue Map erzeugt werden kann.
+
+Key Value Paare werden dabei mit der implicit `->` Methode erzeugt. Diese Methode ist in unserem Fall nicht
+der Klasse String zugeordnet. Stattdessen wird der Key-String implizit in einen neuen Wert vom Typ
+`ArrowAssoc` umgewandelt, welcher die -> Methode hat. Diese wandelt ein `A -> B` Ausdruck in einen Tuple (A, B)
+um. Dieses Verfahren nennt sich `implicit conversion`. Java kennt das in rudimentärer Form als Auto(un)boxing.
+Dadurch ist zum Beispiel auch sowas möglich: `4 + " hallo"`
+```
+val firstMap = Map("one" -> "hallo", "two" -> "welt")
+firstMap("one")
+```
+
+Concatenations
+```
+val a_map = firstMap + ("three" -> "foo")
+val b_map = a_map - "three"
+```
+
+--
+
+Transformation einer map
+
+```
+val tupleList = firstMap.toList
+val strings = firstMap.map{ case (a,b) => a + "=" + b }
+val strings1 = firstMap.map( e => e._1 + "=" + e._2  )
+```
+
+---
+| \b\* Mutable Map
+
+Wie auch bei der List, gibt es auch zu der immutable Map ein mutable Pendant aus dem
+Package scala.collection.mutable
+
+```
+import scala.collection.mutable
+val mutableMap: mutable.Map[String, Int]  = mutable.Map()
+mutableMap += ("foo" -> 1) += ("bar" -> 2)
+```
+
+---
+| \b\* Classes -Grundsätzlicher Aufbau
+
+Die Klasse ist die Basis des objektorientierten Teils von Scala.
+Wie in Java hat eine Klasse einen Namen, einen oder mehrere Konstruktoren,
+Methoden und Attribute.
+
+```
+class ChecksumAccumulator {     //Klasse ChecksumAccumulator
+  private var sum: Int = 0                //Attribut
+
+  def add(b: Byte) { sum += b }           //Methode
+  def checksum: Int = ~(sum & 0xFF) + 1   //Noch eine Methode
+}
+```
+
+Eine neue Instanz lässt sich mit dem `new` Operator erzeugen. Dies ist einer der wenigen nativen
+Operatoren. Die Klammern des leeren Konstruktors können wie bei einem "normalen" Methodenaufruf
+auch hier weg gelassen werden.
+
+```
+val ref = new ChecksumAccumulator()
+ref.add(23)
+ref.checksum
+```
+---
+| \b\*Classes - Konstruktoren
+
+Der Hauptkonstruktor einer Klasse wird direkt hinter den Klassenbezeichner gesetzt.
+Es ist also keine explizite Methodendefinition notwendig. Nehmen wir hier noch die Möglichkeit
+der Defaultwerte für Parameter wahr, so lassen sich bereits viele Konstruktorfälle abbilden.
+
+Alle Felder in dem Hauptkonstruktor stellen auch gleichzeitig Klassenattribute dar.
+Daher sind vor jedem Parameter auch die üblichen Zugriffsmodifizierer (protected und private) möglich
+`public` ist immer standard und kann nicht explizit angegeben werden.
+
+```
+class ConstructorClass[T](private val x: Int, var y: Int, val z: Int = 20) {
+//.                    |   |                      |           |
+//.                    |   |                      |           |
+//.                    |   |                      |           |
+//.                    |   |                      |           public immutable mit default
+//.                    |   |                      |
+//.                    |   |                      public mutable variable
+//.                    |   |
+//.                    |   private immutable value
+//.                    |
+//.                    generic type parameter
+
+  //Der gesamte Body der Klasse dient nun als Initialisierungsroutine der Klasse
+  //Das heißt jeder Ausdruck zwischen den geschweiften Klammern wird zur Initialisierung
+  //ausgeführt. Auf die Konstruktorargumente kann dabei direkt zugegiffen werden.
+  println(s"Value $x set as value")
+
+  private val sum = x+y+z
+
+  def getSum: Int = sum
+
+  //Sollten wir aber tatsächlich mal einen anderen Konstruktor brauchen, zum Beispiel, wenn wir
+  //andere Parametertypen brauchen, können wir eine oder mehrere `this` Methoden definieren:
+  def this(x: String, y: String) {
+    this(x.toInt, y.toInt, 10)
+  }
+}
+```
+
+---
+| \b\* Beispiele
+
+```
+new ConstructorClass(1, 2)
+new ConstructorClass("1", "2")
+val ref2 = new ConstructorClass(1, 2, 3)
+
+ref2.getSum   //Aufrufen der öffentlichen `getSum` Methode
+ref2.y = 10   //Da `y` ein `public var` ist können wir das Feld von außen überschreiben.
+ref2.z        //`z` ist ein public val. Daher können wir das Feld zwar lesen, aber nicht überschreiben.
+```
+
+---
+| \b\* Classes - Zugriffsmodifizierer
+
+Wie in vielen anderen objektorientierten Sprachen, so können auch in Scala die Methoden und
+Attribute mit Zugriffsmodifizierer belegt werden. Standardmäßig sind alle Element `public`.
+Ein expliziertes `public` Bezeichner existiert daher nicht.
+
+```
+class Car() {
+
+  def startEngine(): Unit =
+    if(isOnTestBench) println("Töf töf töf")
+    else println("WRRROOOOOOOOOOOOMMMRRRÖÖÄÄÄRRRR")
+
+  protected def crashWith(other: Car) {
+    this.explodeAirbags()
+    //Tatsächlich können wir die Airbags des anderen Autos explodieren lassen,
+    //da diese Methode "lediglich" private ist.
+    other.explodeAirbags()
+  }
+
+  private def explodeAirbags() =
+    println("PUFFF!")
+
+  /**
+    * Diese Methode stellt fest, ob unser Auto auf einem Teststand steht und wir
+    * die Abgaskontrolle speziell einstellen müssen. Natürlich wollen wir diese Methode
+    * auf gar keinen Fall von außen erreichbar machen. Auch nicht von anderen `Car`s.
+    * Denn sonst kommt uns noch die EPA auf die Schliche! :-O
+    *
+    * Dafür benutzen wir das private[this] Schlüsselwort. Damit ist die Methode nur aus der eigenen
+    * Instanz aus aufrufbar.
+    */
+  private[this] def isOnTestBench: Boolean = {
+    println("Shutting down turbo boost. Switching to lame duck mode.")
+    true
+  }
+}
+```
+
+---
+| \b\* Objects
+
+Scala Klassen kennen keine statischen Attribute oder Methode.
+Stattdessen gibt es ein komplett statisches Singleton Pendent zur Klassen, das `Object`.
+Ein Object lässt sich genau so erstellen wie eine Klasse, nur das es eben keinen Konstruktor hat.
+```
+object ThisIsAStaticObject {
+  private val someField = 42
+
+  def printField() = println(s"This is the field: $someField.")
+}
+```
+
+Der Zugriff erfolgt direkt über den Objektbezeichner.
+```
+ThisIsAStaticObject.printField()
+```
+
+---
+| Companion Objects
+
+Möchte man nun ein statisches Element für alle Instanzen einer Klasse einführen,
+so bietet Scala die Möglichkeit eines companion objects.
+Hat ein object denselben Namen wie eine class, so hängen diese beiden Elemente
+logisch zusammen. So kann eine Instanz einer class auf die private member eines objects
+zugreifen und umgekehrt.
+
+```
+/**
+  * Dies ist das Companion Object. Es hat den selben Namen wie die obere class.
+  * Somit kann in Methode `startTraffic` auf die `crashWith` Methode der übergebenen
+  * `Car` Instanzen zugreifen.
+  */
+object Car {
+  def startTraffic(cars: Car*) =
+    if(cars.size >= 2)
+      cars(0).crashWith(cars(1))
+
+  /**
+    * Ein weiterer Einsatzzweck der Companion objects sind Factorymethoden.
+    * Scala bietet hierfür die spezielle Methode `apply` an. Dies erlaubt
+    * eine Kurzschreibweise beim Aufrufen, wie wir weiter unten sehen.
+    */
+  def apply(color: String, age: Int): Car =
+    new Car(color, age)
+}
+```
+
+--
+
+Instanziierung geht jetzt so:
+```
+val car = Car("black", 1)
+```
+
+---
+| \b\* Übungen (für's nächste mal)
+
+https://github.com/tmstff/scala-dojo-yann
+
+=> section 3
