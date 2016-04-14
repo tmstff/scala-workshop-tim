@@ -107,10 +107,10 @@ Allerdings können wir nicht alle Typdefinitionen weg lassen. Der Compile muss i
 der Funktion ermitteln können.
 
 ```
-val h = (x: Int, y: Int) => x+y   Durch die Parameter und die Operation sind alle Typen bekannt
+val h = (x: Int, y: Int) => x+y   //Durch die Parameter und die Operation sind alle Typen bekannt
 
-val i: (Int, Int) => Int  =  (x, y) => x+y  Durch den expliziten Typ des Values, brauchen wir die Typen der Parameter
-                                            nicht mehr mit angeben. Diese sind implizit bekannt.
+val i: (Int, Int) => Int  =  (x, y) => x+y  //Durch den expliziten Typ des Values, brauchen wir die Typen der Parameter
+                                            //nicht mehr mit angeben. Diese sind implizit bekannt.
 ```
 
 ---
@@ -218,10 +218,12 @@ was es bei Scala auch als Funtkion gibt, aber eine andere Bedeutung hat!
 
 In Scala müssen Funktionen nicht auf dem Gesamten Wertebereich der Eingabeparameter definiert sein
 
-val one: PartialFunction[Int, String] = { case 1 => "one" }
+```
+val one: PartialFunction[Int, String] = { case 1 => "uno" }
 
 one.isDefinedAt(1)
 one.isDefinedAt(2)
+```
 
 Wir gehen auf die cases nochmal genauer beim Pattern Matching ein.
 
@@ -230,6 +232,10 @@ Wir gehen auf die cases nochmal genauer beim Pattern Matching ein.
 Die Funktion collect(...) nimmt bei Scala eine partielle Funktion an, die sie
 auf jedes Element einer Collection anwendet. Zurückgegeben wird eine neue
 Collection. Ist die partielle Funktion für das jeweilige Element definiert
+
+```
+List(1,2,3).collect(one)
+```
 
 
 ---
@@ -275,6 +281,71 @@ do {
   println(z)
   z += 1
 } while(z != 4)
+```
+
+---
+| \b\* TUPLES
+
+Tuple sind zusammengesetzte Werte, unterschiedlicher Typen.
+Anders als bei Sets oder Listen, ist die Reihenfolge und die Anzahl der Werte
+fest und kann nicht manipuliert werden.
+Tuples eigenen sich besonders als Hilfskonstrukt, um mehrere Einzelwerte
+einem Parameter zuzuordnen oder als Rückgabewert bereit zustellen.
+
+```
+val tuple: (Int, String, Double) = (1, "hallo", 3.3)
+val otherTuple = ("hallo", true, List(1, 2, 3))
+```
+
+Ein Zugriff auf die namenlosen Werte erfolgt über die '_n' Felder.
+Später werden wir mittels pattern matching eine elegantere Möglichkeit sehen,
+auf die Werte zuzugreifen.
+
+```
+println(tuple._1)
+println(tuple._2)
+println(tuple._3)
+```
+
+---
+| \b\* Arrays 1
+
+Arrays funktionieren vom Prinzip her genauso wie wir sie aus Java kennen, nur dass sie in Scala
+ein eigenständiges Objekt sind.
+Zunächst erzeugen wir ein neues Arrayobjekt eines Typs und einer festen Länge.
+
+```
+val array = new Array[Int](10)
+```
+
+Zugriff erlangen wir anders wie in Java nicht mit eckigen Klammern, sondern mit runden Klammern.
+Auch hier kennt Scala keinen separaten Zugriffsoperator for Arrays. Stattdessen wird hier die
+im Objekt liegende `apply` und `update`  Methode aufgerufen. `apply` und `update` sind ein magic names.
+Wir können diese Methode egal an welchem Objekt statt `instance.apply(34)` direkt mit
+`instance(34)` aufrufen. Dieses Pattern werden wir desöfteren wiedersehen.
+
+```
+array(0) = 42
+array.update(1, 43)
+```
+
+Arrays sind immer mutable!
+
+---
+| \b\* Arrays 2
+
+Ein illegaler Zugriff außerhalb des Wertebereichs mündet in einer ArrayIndexOutOfBoundsException
+
+```
+// array(11) = 44 <- ArrayIndexOutOfBoundsException
+```
+
+Alternativ kann man auch ein vorausgefülltes Array definieren. Hier bedienen wir uns dem companion
+objects von Array, welche wir später kennen lernen werden. Kurz gesagt ist es der statische Nachbar der
+Klasse Array, wiederum mit einer `apply` Methode.
+
+```
+val newArray = Array(1, 2, 3, 4, 5)
 ```
 
 
