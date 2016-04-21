@@ -4,8 +4,10 @@
 2) Fragen vom letzten mal
 3) discuss "homework" (section3)
 4) Case Classes & Pattern Matching
-5) Homework for next time
-6) Feedback
+5) Abstract Classes
+6) Traits
+7) Homework for next time
+8) Feedback
 
 ---
 | \b\* Organisatorisches
@@ -29,17 +31,20 @@ Die Klasse bietet direkt eine `equals` und `hashCode` Methode, die alle Werte de
 mit einbeziehen. Auch existiert für das value object pattern eine `copy` Methode,
 welche über named parameters nur spezielle Werte in der Kopie ändern lassen.
 ```
-case class User(name: String, surname: String, age: Int) {
-  Ein Beispiel für die `copy` Methode. Wir erzeugen eine Kopie der aktuellen Instanz
-  aber mit einem neuen Alter.
-  def birthday = this.copy(age = age + 1)
-}
+case class User(name: String, surname: String, age: Int)
 ```
+
+--
 
 Case classes besitzen auch direkt ein companion object mit einer apply Methode:
 ```
 val user_one = User("Max", "Mustermann", 23)
 val user_two = User("Max", "Mustermann", 23)
+```
+
+Erzeugen neuer Instanzen mit eizelnen geänderten Feldern erfolgt über die copy-methode:
+```
+user_one.copy(age=24)
 ```
 
 --
@@ -53,8 +58,7 @@ user_one.hashCode
 Auch haben case classes eine automatische toString Implementierung, die alle
 Werte ausdruckt.
 ```
-'User(Max,Mustermann,23)'
-println(user_one)
+println(user_one) //'User(Max,Mustermann,23)'
 ```
 
 ---
@@ -85,10 +89,9 @@ def describe(x: String) = x match {
 }
 ```
 
-describe("Hallo Welt")    Gibt "some hello world" zurück
-describe("Hallo")         Gibt "some hello" zurück
-describe("Foo")           Wirft eine `MatchError` Exception.
-
+describe("Hallo Welt")    //Gibt "some hello world" zurück
+describe("Hallo")         //Gibt "some hello" zurück
+describe("Foo")           //Wirft eine `MatchError` Exception.
 ---
 | \*\b Constant pattern und default value mit dem wildcard pattern
 
@@ -156,7 +159,7 @@ Hier ein paar Beispiele:
 ```
 def users(user: User) = user match {
   case User(name, "Mustermann", _, Male) => println(s"some male with surname Mustermann named: $name")
-  case User(name, _, _, Female) => println(s"some female named: "+ $name)
+  case User(name, _, _, Female) => println(s"some female named: $name")
   case User(name, _, 34, Male) => println(s"some male that is 34 named: $name")
 }
 
@@ -179,6 +182,8 @@ case class Car(colour: String, brand: String, km: Double) {
 }
 ```
 
+--
+
 Möchten wir nun auf einen BMW matchen und zusätzlich im Nachhinein
 diesen Wagen auch mit `startEngine` starten, so können wir das ganze
 Objekt mit einer Variable belegen: `varName @ [Pattern]`:
@@ -186,6 +191,7 @@ Objekt mit einer Variable belegen: `varName @ [Pattern]`:
 ```
 Car("blue", "BMW", 30000) match {
   case c @ Car(_, "BMW", _) => println(c.startEngine())
+}
 ```
 
 ---
@@ -255,6 +261,8 @@ def isIntCollection(x: Any) = x match {
 }
 ```
 
+--
+
 Durch das type erasure wird nun folgender Ausdruck zu true ausgewertet,
 obwohl wir definitiv eine Map[String, String] als Parameter geben.
 Das Problem des type erasures tritt auch in Java auf. Siehe:
@@ -309,7 +317,147 @@ println(string)
 println(number)
 ```
 
+
+---
+| \b\* Abstract classes
+
+a simple abstract class with an abstract method.
+```
+abstract class AbstractCar {
+  ///We can define abstract methods definitions like in java:
+  def startEngine: String
+
+  ///But we can also define abstract FIELD definitions:
+  val color: String
+
+  ///And of course predefine some fields:
+  val tireCount: Int = 4
+}
+```
+
+--
+
+Now we can extend a concrete sub class. This class must implement the startEngine method and
+color field with a value. Otherwise the code won't compile. :
+
+```
+class Bmw extends AbstractCar {
+
+  def startEngine: String = "WWRRRRÖÖÖÖÖAAAAAAAAMMMMMMMMMMMM!!!"
+
+  val color = "blue"  //This is a field "implementation"
+}
+```
+
+---
+| \b\* Abstract classes overriding
+
+We extends an abstract fueled car with a new constructor argument
+```
+abstract class FueledCar(fillingLevel: Int) extends AbstractCar {
+  //We set the color implementation as final.
+  //So no inherited class can override it. Like in Java.
+  final val color: String = "blue"
+}
+```
+
+--
+
+We can override the tireCount method. But in scala me MUST add the prefix `override`.
+We also must give the inherited class it's constructor argument.
+Btw: This PiaggioApe is final. It can not be inherited!
+```
+final class PiaggioApe extends FueledCar(40) {
+  //Implements the startEngine METHOD as a VALUE!
+  //This is possible. But you can not implement a val
+  //definition with a method, cause the scala compiler
+  //checks if the implementation is a strict immutable value
+  //So: def -> var
+  //.   def -> val
+  //.    var -> val
+  //.    var -> def
+  val startEngine: String = "Töf töf töf töf töf töf töf..."
+
+  //Here we override the pre defined value.
+  override val tireCount = 3
+
+  //We can not override the color cause it's final.
+  //override def color = "green"
+}
+```
+
+---
+| \b\* Traits 1
+
+Trais are like interfaces, which can also have fields and a default implementation.
+The following is a simple trait with two 'abstract' fields which must be 'implemented' with a value.
+Also a default implementation of a method `sayHello`
+```
+trait Person {
+  val name: String
+  val gender: String
+  def sayHello() = println(s"Hello! I'm $name!")
+}
+```
+
+--
+
+We can "mix in" the trait with 'extends' (for the first) or 'with' (for the following) traits.
+```
+class Student(val name: String, val gender: String) extends Person
+
+val student = new Student("max", "male")
+student.sayHello()
+```
+
+---
+| \b\* Traits 2
+
+We can define another trait which we want to mix in into our subclass.
+This trait represents a user of a cafeteria. It has a budget, can buy food and
+deposit money onto the budget.
+This trait has only default implemented methods. So is probably could also stand alone
+as a class. But we want to mix this one into other classes.
+```
+trait CafeteriaUser {
+  private var budget: Int = 0
+
+  def actualBudget = budget
+
+  def buyFood(costs: Int) = if(budget - costs < 0) {
+    throw new RuntimeException("You can not buy food! Not enough money!")
+  } else {
+    budget = budget - costs
+  }
+
+  def deposit(value: Int) = budget = budget + value
+}
+```
+
+--
+
+So we define a class `Employee` which is a `Person` and also a `CafeteriaUser`:
+To do this, we extend the Person class and mix in the `CafertiaUser` with the keyword `with`.
+```
+class Employee(val name: String, val gender: String) extends Person with CafeteriaUser {
+  val beginOfEmployment = new java.util.Date
+}
+```
+
+--
+
+```
+val employee = new Employee("Susan", "female")
+employee.sayHello()
+employee.deposit(100)
+employee.actualBudget
+
+var user: CafeteriaUser = employee
+
+new Student(name="Arnold", gender="male") with CafeteriaUser
+```
+
 ---
 | \b\* Übungen (für's nächste mal)
 
-https://github.com/tmstff/scala-dojo-yann
+https://github.com/tmstff/scala-dojo-yann - section4
