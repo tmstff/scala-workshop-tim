@@ -1,0 +1,147 @@
+| \b\*Scala Workshop - session 5
+
+1) Organisatorisches
+2) Fragen vom letzten mal
+3) Discuss "homework" (section4)
+4) Futures
+5) Promises
+6) For-Comprehensions
+7) Homework for next time
+8) Feedback
+
+---
+| \b\* Organisatorisches
+
+Moep
+
+
+---
+| \b\* Fragen vom letzten mal
+
+??
+
+---
+| \b\* Futures
+
+Scala bietet eine Future Klasse die es erlaubt Aufgaben (z.B. Netzwerk oder Dateizugriffe)
+asynchron auszuführen. Vergleichbar mit einem Future bzw. FutureTask in Java.
+
+```
+val future = Future {
+    someBlockingCall()
+}
+```
+
+--
+
+Dieser Aufruf führt bereits dazu dass das Future einem ExecutionContext zur
+Ausführung übergeben wird.
+
+Methodensignatur der apply Methode im Future Companion Objekt:
+
+```
+def apply[T](body: =>T)(implicit execctx: ExecutionContext): Future[T]
+```
+
+---
+
+Der ExecutionContext kann entweder direkt als Parameter übergeben oder implizit eingebunden
+werden. Um die Verwendung von Futures einfacher zu machen, bietet Scala einen globalen
+ExecutionContext der automatisch durch einen import verwendet werden kann:
+
+```
+import scala.concurrent.ExecutionContext.Implicits.global
+
+val future = Future {
+    someBlockingCall()
+}
+```
+
+Syntactic sugar für
+
+```
+val future = Future.apply({
+    "hello future"
+})(scala.concurrent.ExecutionContext.Implicits.global)
+```
+
+---
+| \b\* Beispiel 1
+
+```
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+
+val f1 = Future {
+    Thread.sleep(5000)
+    "Future 1 completed"
+}
+val f2 = Future {
+    Thread.sleep(2000)
+    "Future 2 completed"
+}
+
+f1 onSuccess { case str => println(str) }
+f2 onSuccess { case str => println(str) }
+```
+
+---
+| \b\* Beispiel 2
+
+```
+import java.lang.RuntimeException
+import scala.util.{Try, Success, Failure}
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+
+val f = Future {
+    Thread.sleep(2000)
+    throw new RuntimeException("Future 1 failed")
+}
+
+f onComplete {
+  case Success(str) => println(s"onComplete: $str")
+  case Failure(t) => println("An error has occured: " + t.getMessage)
+}
+```
+
+---
+| \b\* Verwendung?
+
+Zum Beispiel im Play Framework bei der Verwendung des WSClient um
+einen HTTP Aufruf zu tätigen:
+
+```
+def scrapeShop() = Action.async {
+    ws.url("https://shop.rewe.de/").get()
+        .map(result => processResult(result))
+}
+```
+
+---
+| \b\* Promises
+
+Ein Promise separiert die ausgeführte Berechnung von dem Future. So ist es möglich an einer
+beliebigen Stelle im Code bzw. in irgendeinem Thread ein Future zu vervollständigen. Ein Promise
+kann dazu genau einmal zugewiesen werden.
+
+```
+import scala.concurrent.{Future, Promise}
+import scala.concurrent.ExecutionContext.Implicits.global
+
+val promise = Promise[String]()
+val future = promise.future
+
+future onSuccess { case r => println("Promise has been kept: " + r) }
+
+val producer = Future {
+  val result = "hi there :)"
+  Thread.sleep(2000)
+  promise.success(result)
+  // Do further stuff
+}
+```
+
+---
+| \b\* For-Comprehensions
+TODO
