@@ -12,13 +12,131 @@
 ---
 | \b\* Organisatorisches
 
-Moep
+Urlaub :-)
+19.05. - 12.06.
 
+Vielleicht zur Überbrückung:
+
+Es gibt ein ganz brauchbares kostenloses E-Book zum Scala lernen: http://fileadmin.cs.lth.se/scala/scala-impatient.pdf
+Da sind bei jedem Kapitel Übungen drinnen Lösungen findet man ggf. im Netz.
+
++ Themenwünsche sammeln!
 
 ---
-| \b\* Fragen vom letzten mal
+| \b\* Fragen vom letzten mal - === und Pattern matching mit Listen
 
-??
+=== kommt aus dem Trait org.scalautils.TripleEqualsSupport - aus Scalatest
+
+http://www.scalatest.org/getting_started_with_fun_suite
+
+" Using triple equals [will] give you the more informative error message, "1 did not equal 2": "
+
+--
+/
+
+Pattern matching mit Listen:
+
+```
+val numbers = List (2, 4, 6, 8)
+
+def sum(list: List[Int]): Int = {
+  list match {
+    case x :: xs => x + sum(xs)
+    case Nil => 0
+  }
+}
+
+```
+
+---
+| \b\* Fragen vom letzten mal - pattern macthing & type erasure
+
+Problem:
+
+```
+val list = List(1,2,3)
+
+list match {
+  case x: List[String] => println("List of Strings")
+  case x: List[Int] => println("List of Ints")
+}
+
+```
+
+--
+
+Possible Solution:
+
+```
+import reflect.runtime.universe._
+
+def matchList[A: TypeTag](c: List[A]) = c match {
+  case c: List[String] if typeOf[A] <:< typeOf[String] => println("List of Strings")
+  case c: List[Int] if typeOf[A] <:< typeOf[Int] => println("List of Ints")
+  case c: List[_] => println("other")
+}
+
+matchList(list)
+```
+
+--
+
+or see http://stackoverflow.com/questions/35181533/can-we-elegantly-match-an-erased-type-in-scala/35181934#35181934
+
+--
+
+or better leave it ;-)
+
+---
+| \b\* Fragen vom letzen mal - Diamond Problem
+
+
+```
+trait Base {
+   def op: String = "base"
+}
+
+trait Foo extends Base {
+   override def op = "foo"
+}
+
+trait Bar extends Base {
+   override def op = "bar"
+}
+
+class Diamond extends Foo with Bar {
+
+  def foo(): String = super[Foo].op
+
+  def bar(): String = op
+
+  // geht nicht!
+  //def base(): String = super[Base].op
+}
+
+val d = new Diamond()
+```
+
+--
+
+Kein Problem mit Konstruktor-Aufrufen: Traits haben keine Konstruktoren :-)
+
+Auswahl der Methode erfolg "von rechts nach links"
+
+```
+d.op
+```
+
+--
+
+Weitere Methoden lassen sich explizit ansprechen:
+
+```
+d.foo
+d.bar
+
+```
+
 
 ---
 | \b\* Futures
