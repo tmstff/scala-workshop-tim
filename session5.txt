@@ -219,7 +219,7 @@ countries.foreach(country =>
 | \b\* For-Yield
 
 Der For-Yield Ausdruckt erlaubt es auf jedem Element eine Berechnung auszuführen und
-aus den Ergebnissen ein Array zu erstellen.
+das Ergebnis zurückzugeben:
 
 ```
 val countries = List("Australien", "Japan", "Canada")
@@ -237,4 +237,56 @@ val reversedCountryNames = countries.map(country => country.reverse)
 
 ---
 
-Bzw. alternativ
+Nutzt man nun mehrere 'enums' im Schleifenkopf, wird ein verschachtelter Ausrdruck
+mit flatMap und map Operationen generiert. Der Yield-Teil stellt dabei immer den
+letzten map() Aufruf da.
+
+# scala -Xshow-phases
+# scala -Xprint:parser
+
+```
+val lists = List(
+    List("a1", "a2", "a3"),
+    List("b1", "b2", "b3"),
+    List("c1", "c2", "c3")
+)
+
+def multiples(a: Int): List[Int] = {
+    List(a, a*a, a*a*a*a)
+}
+
+for (i <- 1 to 5; c <- multiples(i)) yield c
+
+for (i <- 1 to 5; if (i % 2 == 0)) yield i
+
+for (list <- lists; item <- list; smile <- List(item + " :)")) yield smile
+```
+
+---
+| \b\* Nutzen von For-Yield
+
+Tätigt man mehrere Webservice Aufrufe die voneinander abhängen, z.B.
+```
+def getTotallyRandomContinent(): Future[String] = Future { "South America" }
+
+// Webservice substitute with support for Antarctia and South America
+def getCountries(continent: String): Future[List[String]] = Future { List("Brazil", "Colombia", "Argentinia", "Peru", "..." ) }
+```
+
+Wollen wir nun beide Webservices verschachtelt aufrufen könnten wir folgendes tun:
+```
+val continents = getTotallyRandomContinents()
+val countries = continents.flatMap(list => list.flatMap(c => getCountries(c))))
+
+for (continent <- getTotallyRandomContinent();
+     countries <- getCountries(continent)) yield countries
+```
+
+Ist äquivalent zu folgendem Ausdruck
+
+```
+getTotallyRandomContinents().flatMap(continent => getCountries(continent))
+```
+
+Während es in diesem Fall noch nicht zuviel ausmacht. Hilft for-yield hier
+bei bei größeren Verschachtelungen von Aufrufen mit anschließenden flatMap.
