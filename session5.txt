@@ -290,3 +290,11 @@ getTotallyRandomContinents().flatMap(continent => getCountries(continent))
 
 Während es in diesem Fall noch nicht zuviel ausmacht. Hilft for-yield hier
 bei bei größeren Verschachtelungen von Aufrufen mit anschließenden flatMap.
+
+
+---
+| \b\* Homework for next time
+
+
+---
+| \b\* Feedback
