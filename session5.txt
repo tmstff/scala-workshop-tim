@@ -108,6 +108,34 @@ f onComplete {
 ---
 | \b\* Verwendung?
 
+Die beiden vorherigen Beispiele haben die onSuccess bzw. onComplete Methoden
+des Futures verwendet. Es gibt jedoch weitere Möglichkeiten auf ein Future zu
+warten. Dazu gehört die Verwendung von Await
+
+```
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
+val result = Await.result(future, 10 seconds)
+```
+
+Die üblichste ist allerdings die Verwendung der allgegenwärtigen map, flatMap,
+filter, ... Funktionen:
+
+```
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+
+val f1 = Future {
+    "Future 1 completed"
+}
+
+future.map(s => s + " and mapped :)")
+```
+
+---
+| \b\* Beispiel
+
 Zum Beispiel im Play Framework bei der Verwendung des WSClient um
 einen HTTP Aufruf zu tätigen:
 
@@ -143,5 +171,70 @@ val producer = Future {
 ```
 
 ---
-| \b\* For-Comprehensions
-TODO
+| \b\* For-Comprehension
+
+Im ersten Moment ist die For-Comprehension in Scala das äquivalent zur For-Schleife in Java.
+
+```
+val countries = List("Australien", "Japan", "Canada")
+
+for (country <- countries) {
+  println(country)
+}
+```
+
+--
+
+Dies ist letztlich syntactic sugar für
+
+```
+countries.foreach(country => println(country))
+```
+
+---
+
+Dementsprechend ist es Möglich weitere Konstrukte abzubilden:
+
+```
+val countries = List("Australien", "Japan", "Canada")
+val relatives = List("mother", "father", "aunt")
+
+for (country <- countries;
+     relative <- relatives) {
+  println(s"Sending postcard from $country to $relative")
+}
+```
+
+--
+
+Ist äquivalent zu
+
+```
+countries.foreach(country =>
+    relatives.foreach(relative =>
+        println(s"Sending postcard from $country to $relative")))
+```
+
+---
+| \b\* For-Yield
+
+Der For-Yield Ausdruckt erlaubt es auf jedem Element eine Berechnung auszuführen und
+aus den Ergebnissen ein Array zu erstellen.
+
+```
+val countries = List("Australien", "Japan", "Canada")
+
+val reversedCountryNames = for (country <- countries) yield country.reverse
+```
+
+--
+
+Ist äquivalent zu
+
+```
+val reversedCountryNames = countries.map(country => country.reverse)
+```
+
+---
+
+Bzw. alternativ
