@@ -269,7 +269,7 @@ def scrapeShop() = Action.async {
 
 Ein Promise separiert die ausgeführte Berechnung von dem Future. So ist es möglich an einer
 beliebigen Stelle im Code bzw. in irgendeinem Thread ein Future zu vervollständigen. Ein Promise
-kann dazu genau einmal zugewiesen werden.
+kann dazu genau einmal zugewiesen werden. Verwendet wird es ähnlich dem Producer/Consumer Konzept.
 
 ```
 import scala.concurrent.{Future, Promise}
@@ -289,10 +289,9 @@ val producer = Future {
 ```
 
 ---
-<<<<<<< HEAD
 | \b\* For-Comprehension
 
-Im ersten Moment ist die For-Comprehension in Scala das äquivalent zur For-Schleife in Java.
+Im ersten Moment ist die For-Comprehension in Scala das äquivalent zur ForEach-Schleife in Java.
 
 ```
 val countries = List("Australien", "Japan", "Canada")
@@ -304,15 +303,26 @@ for (country <- countries) {
 
 --
 
-Dies ist letztlich syntactic sugar für
+Will man eine normale for-Schleife mit Zähler nachbauen, kann man in Scala das Range Konstrukt nutzen.
+
+```
+for (i <- Range(1, 5)) {
+  println(i)
+}
+```
+
+--
+
+Das ganze ist letztlich syntactic sugar für
 
 ```
 countries.foreach(country => println(country))
+Range(1, 5).foreach(i => println(i))
 ```
 
 ---
 
-Dementsprechend ist es Möglich weitere Konstrukte abzubilden:
+Es ist auch möglich mehrere solche Ausdrücke zu verschachteln:
 
 ```
 val countries = List("Australien", "Japan", "Canada")
@@ -395,19 +405,18 @@ Wollen wir nun beide Webservices verschachtelt aufrufen könnten wir folgendes t
 ```
 val continents = getTotallyRandomContinents()
 val countries = continents.flatMap(list => list.flatMap(c => getCountries(c))))
+```
 
+--
+Alternativ lässt sich dies allerdings auch mit for-yield lösen:
+
+```
 for (continent <- getTotallyRandomContinent();
      countries <- getCountries(continent)) yield countries
 ```
 
-Ist äquivalent zu folgendem Ausdruck
-
-```
-getTotallyRandomContinents().flatMap(continent => getCountries(continent))
-```
-
-Während es in diesem Fall noch nicht zuviel ausmacht. Hilft for-yield hier
-bei bei größeren Verschachtelungen von Aufrufen mit anschließenden flatMap.
+Während es in diesem Fall noch nicht zuviel ausmacht. Hilft for-yield hier größere
+Verschachtelungen von Aufrufen mit anschließenden flatMap übersichtlich zu halten.
 
 
 ---
