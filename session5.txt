@@ -403,8 +403,8 @@ def getCountries(continent: String): Future[List[String]] = Future { List("Brazi
 
 Wollen wir nun beide Webservices verschachtelt aufrufen könnten wir folgendes tun:
 ```
-val continents = getTotallyRandomContinents()
-val countries = continents.flatMap(list => list.flatMap(c => getCountries(c))))
+val continent = getTotallyRandomContinent()
+val countries = continent.flatMap(cont => getCountries(cont))
 ```
 
 --
@@ -422,6 +422,7 @@ Verschachtelungen von Aufrufen mit anschließenden flatMap übersichtlich zu hal
 ---
 | \b\* Homework for next time
 
+Section 5 :)
 
 ---
 | \b\* Feedback
