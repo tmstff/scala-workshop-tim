@@ -395,6 +395,7 @@ for (list <- lists; item <- list; smile <- List(item + " :)")) yield smile
 | \b\* Nutzen von For-Yield
 
 Tätigt man mehrere Webservice Aufrufe die voneinander abhängen, z.B.
+
 ```
 // Webservice substitutes
 def getTotallyRandomContinent(): Future[String] = Future { "South America" }
