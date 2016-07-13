@@ -1,0 +1,97 @@
+| \b\*Scala Workshop - session 6
+
+1) Discuss "homework" (Section 3 - Section 5)
+2) Coursera
+3) Short Recap of Sections 1 - 5
+4) Introduction to play framework
+5) Homework
+6) Feedback
+
+---
+| \b\* Coursera
+
+https://www.coursera.org/courses?languages=en&query=scala
+
+https://www.coursera.org/specializations/scala
+
+---
+| \b\* Short Recap of Section 1
+
+* scala installation
+* scala console / interpreter
+* Objects & References
+* Vals & Vars
+  * Lazy Vals
+* Methods
+  * repeated parameters
+  * named parameters
+  * default values
+  * lazy evaluation
+  * multiple parameter lists
+
+---
+| \b\* Short Recap of Section 2
+
+* sbt & idea
+* Functions
+  * higher order functions
+  * Lambdas
+* Control Structures
+  * if
+  * while
+* Tuples
+* Arrays
+
+---
+| \b\* Short Recap of Section 3
+* Listen
+  * Concatenation
+  * Transformationen
+    * fold & reduce
+  * mutable List
+* Maps
+  * Concatenation
+  * mutable Map
+* Classes
+  * Objects
+    * Companion Objects
+
+---
+| \b\* Short Recap of Section 4
+
+* Case Classes
+* Pattern Matching
+  * Simple Match
+  * Constant pattern
+  * Wildcard pattern
+  * Variable pattern
+  * Constructor Pattern
+  * Variable Binding
+  * Tuple Patterns
+  * Pattern Guard
+  * Typed Patterns
+* Patterns in variable declaration
+* Abstract Classes
+* Traits
+
+---
+| \b\* Short Recap of Section 5
+
+* Pattern Matching mit Listen
+* Diamond Problem & Traits
+* Futures
+* Execution Context
+* Promises
+* For-comprehension
+
+---
+| \b\* Introduction to play framework
+
+
+---
+| \b\* Homework for next time
+
+Write some play app - think about what it should do yourself :-)
+
+---
+| \b\* Feedback
