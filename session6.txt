@@ -85,8 +85,67 @@ https://www.coursera.org/specializations/scala
 * For-comprehension
 
 ---
-| \b\* Introduction to play framework
+| \b\* Introduction to play framework - activator
 
+activator is a wrapper for sbt allowing easy creation of new projects
+
+To install use
+
+brew install typesafe-activator
+apt-get install typesafe-activator (?)
+
+or go to
+
+https://www.lightbend.com/activator/download
+
+---
+| \b\* Introduction to play framework - create a new project
+
+activator list-templates | less
+
+activator new myFancyPlayProj play-scala
+
+---
+| \b\* Introduction to play framework - useful sbt commands
+
+Run play app:
+  sbt run
+
+Run play app on port 9876:
+  sbt run -Dhttp.port=9876
+
+Run play and open debug port 9999:
+  sbt run -jvm-debug 9999
+
+see also https://www.playframework.com/documentation/2.5.x/PlayConsole
+
+---
+| \b\* Introduction to play framework - using the sbt console
+
+Enter sbt console:
+  sbt
+
+reload - reload sbt configuration
+update - update dependencies
+clean - delete "target/" dir
+compile
+
+--
+
+test - run all tests
+~test - ... on each source code change
+testOnly x.y.Z - run only the test specified
+~testOnly - ... on each source code change
+
+--
+
+console - open scala console
+test:console - open scala console (sourcing the test sources)
+
+--
+
+stage - copy all jars, resources & configuration to target/universal/stage/
+dist - run stage command and zip result to target/universal/myfancyplayproj-1.0-SNAPSHOT.zip
 
 ---
 | \b\* Homework for next time
