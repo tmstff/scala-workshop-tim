@@ -331,6 +331,8 @@ Als komplexeres Beispiel hier eine Methode zum Summieren von Zahlen, welche inne
 eine weitere rekursive Methode benutzt.
 
 ```
+import scala.annotation.tailrec
+
 def recursiveListSum(list: List[Int]) = {
   @tailrec
   def step(sum: Int, elements: List[Int]): Int = {
