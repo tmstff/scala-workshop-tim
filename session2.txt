@@ -31,12 +31,21 @@ http://illegalexception.schlichtherle.de/2012/07/19/try-with-resources-for-scala
 @tailrec: wird automatisch optimiert?
 
 In Scala 2.8, you will also be able to use the new @tailrec annotation to get information
-about which methods are optimised. This annotation lets you mark specific methods that you
-hope the compiler will optimise. You will then get a warning if they are not optimised by
+about which methods are optimized. This annotation lets you mark specific methods that you
+hope the compiler will optimize. You will then get a warning if they are not optimized by
 the compiler. In Scala 2.7 or earlier, you will need to rely on manual testing, or inspection
-of the bytecode, to work out whether a method has been optimised.
+of the bytecode, to work out whether a method has been optimized.
 
 http://blog.richdougherty.com/2009/04/tail-calls-tailrec-and-trampolines.html
+
+---
+| \b\* sbt installation
+
+brew install sbt
+apt-get install sbt
+
+http://sdkman.io/
+sdk install sbt
 
 ---
 | \b\* sbt & idea

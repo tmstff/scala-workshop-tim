@@ -9,11 +9,8 @@ Proposal for workshop structure:
 Each session could be divided into 4 parts:
 
 1) discuss "homework" solutions - not on the first session :smirk:
-2) presentation of features
-3) tryout of new features
-4) feedback (just 5 minutes)
-
-Maybe 2) and 3) will "melt together" :smiley:
+2) show & discuss features
+3) feedback (just 5 minutes)
 
 --
 /
@@ -24,7 +21,7 @@ Goal: instantly dive into code, no long introduction. (Is that Ok with everyone?
 /
 
 This presentation is made with https://github.com/marconilanna/REPLesent
-Content based on https://github.com/DarkToast/scala-workshop by Christian Iwanzik
+Content partly based on https://github.com/DarkToast/scala-workshop by Christian Iwanzik
 
 ---
 | \b\*The Scala Interpreter
@@ -33,6 +30,9 @@ Installation:
 
 brew install scala
 apt-get install scala
+
+http://sdkman.io/
+sdk install scala
 
 /
 
@@ -323,69 +323,6 @@ Besonders praktisch für Szenarien, in denen zunächst Resource belegt und
 dann wieder freigegeben werden sollen, z.B. Input/OutputStreams, DB-Verbindungen etc.
 
 ---
-| \b\* Methods - Übung
-
-Schreibe eine Methode, die für mehrere Dateinamen jeweils einen InputStream öfffnet, erlaubt Aktionen
-auf dem InputStream auszuführen, ihn im Anschluss schließt und folgende
-Schreibweise erlaubt:
-
-withFiles("/tmp/test1", "/tmp/test2") {
-  stream => println(stringOf(stream))
-}
-
-dazu wird benötigt:
-
-```
-import java.io.{FileInputStream, InputStream}
-
-def stringOf(is: InputStream) = scala.io.Source.fromInputStream(is).mkString
-```
-
-Hint: You will need to use a Function as parameter for withFile. The syntax is
-
-```
-def example(useInputStream: InputStream => Unit) {
-  useInputStream(new FileInputStream("/tmp/test1"))
-}
-
-example(is => { /* do something */ })
-```
-
---
-/
-
-```
-withFiles("/tmp/test1", "/tmp/test2") {
-  stream => println(stringOf(stream))
-}
-```
-
----
-| \b\* Methods - Mögliche Lösung für Übung
-
-```
-
-def withStream(is: InputStream)(useInputStream: InputStream => Unit): Unit =
-  try {
-    useInputStream(is)
-  } finally {
-    is.close()
-  }
-
-def withFiles(fileNames: String*)(useInputStream: InputStream => Unit) : Unit =
-  fileNames.foreach(
-    fileName => {
-      val is = new FileInputStream(fileName)
-      withStream(is)(useInputStream)
-    }
-  )
-
-withFiles("/tmp/test1", "/tmp/test2") {
-  stream => println(stringOf(stream))
-}
-```
-
----
 | \b\* Methods - Methoden in Methoden
 
 Methode müssen nicht zwangsläufig an Klassen gebunden sein. Methoden können auch innerhalb
@@ -409,8 +346,11 @@ def recursiveListSum(list: List[Int]) = {
 recursiveListSum(List(1, 2, 3, 4, 5))
 ```
 
-Zur Info: Durch die '@tailrec' Annotation kann der Compiler die rekursive Funktion
-in einen Loop Umwandeln - das ist flotter und vermeidet einen Überlauf des Stacks.
+In Scala 2.8, you will also be able to use the new @tailrec annotation to get information
+about which methods are optimized. This annotation lets you mark specific methods that you
+hope the compiler will optimize. You will then get a warning if they are not optimized by
+the compiler. In Scala 2.7 or earlier, you will need to rely on manual testing, or inspection
+of the bytecode, to work out whether a method has been optimized.
 
 ---
 | \b\* Übungen (für's nächste mal?)
