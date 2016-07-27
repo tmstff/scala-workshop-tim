@@ -1,42 +1,23 @@
 | \b\*Scala Workshop - session 2
 
-1) discuss "homework" (section1)
-2) Fragen vom letzten mal
+1) Organisatorisches
+2) discuss "homework" (section1)
 3) sbt & idea
 4) Functions
 5) Homework
 6) Feedback
 
 ---
-| \b\* Fragen vom letzten mal
+| \b\* Organisatorisches
 
-Farben: besser?
-```
-val g: =  (x: Int, y: Int) => { x+y  + 4 + 5 + 6}
-```
---
+Wer will mal?
 
-\b SDKman
-http://sdkman.io/
-➜  ~ sdk list | grep sbt
-sbt (0.13.11)                                          http://www.scala-sbt.org/
-                                                             $ sdk install sbt
---
+Zeitplanung: Öfter? Seltener? Kürzer? Länger?
 
-\b autocloseable
-Wird nicht direkt unterstützt, ist aber leicht umsetzbar:
-http://illegalexception.schlichtherle.de/2012/07/19/try-with-resources-for-scala/
---
+Genug Zeit für Hausaufgaben gehabt? Zu schwer? Zu leicht?
 
-@tailrec: wird automatisch optimiert?
-
-In Scala 2.8, you will also be able to use the new @tailrec annotation to get information
-about which methods are optimized. This annotation lets you mark specific methods that you
-hope the compiler will optimize. You will then get a warning if they are not optimized by
-the compiler. In Scala 2.7 or earlier, you will need to rely on manual testing, or inspection
-of the bytecode, to work out whether a method has been optimized.
-
-http://blog.richdougherty.com/2009/04/tail-calls-tailrec-and-trampolines.html
+---
+| \b\* Homework (Section1)
 
 ---
 | \b\* sbt installation
@@ -54,6 +35,8 @@ sdk install sbt
 * build.sbt
 * scala console
 * interactive mode for scripts
+
+https://github.com/tmstff/scala-dojo-yann
 
 ---
 | \b\* Funktionen

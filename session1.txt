@@ -6,7 +6,7 @@
 
 Proposal for workshop structure:
 
-Each session could be divided into 4 parts:
+Each session could be divided into 3 parts:
 
 1) discuss "homework" solutions - not on the first session :smirk:
 2) show & discuss features
@@ -355,7 +355,7 @@ the compiler. In Scala 2.7 or earlier, you will need to rely on manual testing, 
 of the bytecode, to work out whether a method has been optimized.
 
 ---
-| \b\* Übungen (für's nächste mal?)
+| \b\* Übungen (für's nächste mal)
 
 https://github.com/tmstff/scala-dojo-yann
 
