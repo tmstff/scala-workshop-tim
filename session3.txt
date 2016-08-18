@@ -11,42 +11,15 @@
 ---
 | \b\* Organisatorisches
 
-Wer will mal?
-
-Zeitplanung: Öfter? Seltener? Kürzer? Länger?
-
-
----
-| \b\* Fragen vom letzten mal 1
-
-Wie bekommt man es hin, dass bei a :: b die :: Methode auf b aufgerufen wird?
-
-Sie muss dabei auf der Klasse von b definiert sein und auf : enden!
-
-Beispiel:
+Aktuell: 6 Sessions vorhanden.
+An was für Themen besteht danach Interesse?
 
 ```
-class A { def >>:(b: String) = println(s"geht auch: $b") }
-
-val a = new A()
-"so rum" >>: a
-//a >>: "so rum nicht" //Fehler!
-```
-
---
-/
-
-hier noch die Unterlagen von Christians Scala Workshop: https://github.com/DarkToast/scala-workshop
-
---
-/
-
-Zu welchem Objekt gehören Methoden, die "Top Level" in einem Script deklariert werden?
-
-Keine Ahnung :-D Wenn ihr es herausfindet: lasst es mich wissen!!
 
 ---
-| \b\* Fragen vom letzten mal 2
+| \b\* Fragen vom letzten mal
+
+(vom vorigen Workshop - aber evtl trotzdem interessant :-) )
 
 Streams Äquivalent in Scala
 
@@ -54,6 +27,11 @@ Streams Äquivalent in Scala
 def fib(a:Int = 0, b: Int =1): Stream[Int] = a #:: fib(b, a + b)
 fib().take(10).foreach(println _)
 ```
+
+--
+/
+
+Symbolhound.com
 
 --
 /
@@ -71,6 +49,7 @@ fib() map (asyncComp _) take(10) foreach(_.onComplete(println _))
 ```
 
 --
+/
 
 collect und join:
 
@@ -113,6 +92,22 @@ val concatList = List(-2, -1, 0) ::: list
 ```
 
 ---
+| \b\* Vertauschte Infix-Schreibweise
+
+Wie bekommt man es hin, dass bei a :: b die :: Methode auf b aufgerufen wird?
+
+Sie muss dabei auf der Klasse von b definiert sein und auf : enden!
+
+Beispiel:
+
+```
+class A { def >>:(b: String) = println(s"geht auch: $b") }
+
+val a = new A()
+"so rum" >>: a
+//a >>: "so rum nicht" //Fehler!
+
+---
 | \b\* Listen: nützliche Methoden
 
 Ein paar nützliche Methoden sind `head` und `tail`.
@@ -126,7 +121,7 @@ val last = list.last
 
 --
 
-Man kann Listen in eine Liste von Pairs zusammenfügen:
+Man kann Listen in eine Liste von Pairs aufsplitten:
 
 ```
 val pairList = list zip List("a", "b", "c", "d")
@@ -453,3 +448,6 @@ val car = Car("black", 1)
 https://github.com/tmstff/scala-dojo-yann
 
 => section 3
+
+---
+| \b\* Feedback
