@@ -2,18 +2,18 @@
 
 1) Organisatorisches
 2) Fragen vom letzten mal
-3) discuss "homework" (section3)
-4) Case Classes & Pattern Matching
-5) Abstract Classes
-6) Traits
+3) Case Classes & Pattern Matching
+4) Abstract Classes
+5) Traits
+6) discuss "homework" (section3)
 7) Homework for next time
 8) Feedback
 
 ---
 | \b\* Organisatorisches
 
-Wer will mal?
-
+Aktuell: 6 Sessions vorhanden.
+An was für Themen besteht danach Interesse?
 
 ---
 | \b\* Fragen vom letzten mal
@@ -461,3 +461,9 @@ new Student(name="Arnold", gender="male") with CafeteriaUser
 | \b\* Übungen (für's nächste mal)
 
 https://github.com/tmstff/scala-dojo-yann - section4
+
+---
+| \b\* Feedback
+
+Feedback: für zukünftige Workshops: andere Reihenfolge besser? Zuerst der "cool Stuff",
+und dann erst die Details?
