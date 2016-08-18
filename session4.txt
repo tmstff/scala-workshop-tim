@@ -18,6 +18,9 @@ An was für Themen besteht danach Interesse?
 ---
 | \b\* Fragen vom letzten mal
 
+Wie sieht es aus mit der Performance von Collections?
+
+http://docs.scala-lang.org/overviews/collections/performance-characteristics.html
 
 ---
 | \b\* CASE CLASSES
